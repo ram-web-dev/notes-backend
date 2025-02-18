@@ -1,11 +1,18 @@
-import { format, getWeek } from "date-fns";
+import { format } from "date-fns";
 import dbPromise from "../db/connectDb.js";
 
 export const getAllUserNotes = async (userId) => {
   const db = await dbPromise;
   const getAllUserNotesQuery =
-    "SELECT * FROM notes WHERE user_id = ? AND archived = FALSE";
+    "SELECT * FROM notes WHERE user_id = ? AND archived = FALSE ORDER BY updated_at DESC";
   return await db.all(getAllUserNotesQuery, [userId]);
+};
+
+export const getAllUserArchives = async (userId) => {
+  const db = await dbPromise;
+  const getAllUserArchivesQuery =
+    "SELECT * FROM notes WHERE user_id = ? AND archived = TRUE ORDER BY updated_at DESC";
+  return await db.all(getAllUserArchivesQuery, [userId]);
 };
 
 export const getNote = async (noteId) => {

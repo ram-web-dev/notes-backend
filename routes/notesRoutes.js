@@ -5,6 +5,8 @@ import {
   createNote,
   editNote,
   fetchAllNotes,
+  fetchArchivedNotes,
+  fetchNote,
   pinNote,
   removeNote,
 } from "../controllers/notesController.js";
@@ -15,7 +17,9 @@ router.use(authenticateToken);
 
 router.route("/").post(createNote).get(fetchAllNotes);
 
-router.route("/:id").put(editNote).delete(removeNote);
+router.get("/archives", fetchArchivedNotes);
+
+router.route("/:id").get(fetchNote).put(editNote).delete(removeNote);
 
 router.patch("/:id/pin", pinNote);
 

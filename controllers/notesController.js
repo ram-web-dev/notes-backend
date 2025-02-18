@@ -2,6 +2,7 @@ import { fetchUserByEmail } from "../models/userModel.js";
 import {
   createNewNote,
   deleteNote,
+  getAllUserArchives,
   getAllUserNotes,
   getNote,
   updateNote,
@@ -25,6 +26,21 @@ export const fetchAllNotes = async (req, res) => {
   const user = await fetchUserByEmail(req.userMail);
   const notes = await getAllUserNotes(user.id);
   res.send({ notes });
+};
+
+export const fetchNote = async (req, res) => {
+  const { id } = req.params;
+  const user = await fetchUserByEmail(req.userMail);
+  const note = await getNote(id);
+  if (note === undefined) {
+    res.status(404).send({ errorMessage: "Note not Found" });
+    return;
+  }
+  if (note.user_id !== user.id) {
+    res.status(401).send({ errorMessage: "Cannot read Notes" });
+    return;
+  }
+  res.send({ note });
 };
 
 export const editNote = async (req, res) => {
@@ -68,6 +84,7 @@ export const removeNote = async (req, res) => {
 
 export const pinNote = async (req, res) => {
   const { id } = req.params;
+  const { pinned } = req.body;
   const user = await fetchUserByEmail(req.userMail);
   const note = await getNote(id);
   if (note === undefined) {
@@ -78,12 +95,13 @@ export const pinNote = async (req, res) => {
     res.status(401).send({ errorMessage: "Cannot Pin Notes" });
     return;
   }
-  await updateNotePin(id, !note.pinned);
-  res.sendStatus(200);
+  await updateNotePin(id, pinned);
+  res.send({ pinned });
 };
 
 export const archiveNote = async (req, res) => {
   const { id } = req.params;
+  const { archived } = req.body;
   const user = await fetchUserByEmail(req.userMail);
   const note = await getNote(id);
   if (note === undefined) {
@@ -94,6 +112,12 @@ export const archiveNote = async (req, res) => {
     res.status(401).send({ errorMessage: "Cannot Archive Notes" });
     return;
   }
-  await updateNoteArchive(id, !note.archived);
+  await updateNoteArchive(id, archived);
   res.sendStatus(200);
+};
+
+export const fetchArchivedNotes = async (req, res) => {
+  const user = await fetchUserByEmail(req.userMail);
+  const notes = await getAllUserArchives(user.id);
+  res.send({ notes });
 };
